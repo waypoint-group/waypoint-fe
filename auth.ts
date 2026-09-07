@@ -14,6 +14,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async jwt({ token, account }) {
       if (account?.provider === "keycloak") {
         token.idToken = account.id_token
+        token.accessToken = account.access_token
       }
 
       return token
