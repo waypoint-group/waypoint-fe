@@ -3,12 +3,15 @@
 import { signIn } from "next-auth/react"
 import { Button } from "./ui/button"
 
-type Props = {
+type SocialSignInPropsType = {
   provider: "google" | "github"
   children: React.ReactNode
 }
 
-export const SocialSignInButton = ({ provider, children }: Props) => {
+export const SocialSignInButton = ({
+  provider,
+  children,
+}: SocialSignInPropsType) => {
   return (
     <Button
       variant="outline"
