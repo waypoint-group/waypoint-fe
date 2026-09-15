@@ -1,21 +1,62 @@
-# Next.js template
+# Waypoint frontend
 
-This is a Next.js template with shadcn/ui.
+Waypoint frontend - a Next.js (App Router) application using shadcn/ui and next-auth.
 
-## Adding components
+## Tech stack
 
-To add components to your app, run the following command:
+- Next.js (App Router)
+- React 19
+- Tailwind CSS v4
+- shadcn/ui + Base UI
+- Auth.js (next-auth) with Keycloak provider
+- Storybook
+- Vitest
 
-```bash
-npx shadcn@latest add button
-```
+## Prerequisites
 
-This will place the ui components in the `components` directory.
+- Bun
 
-## Using components
+## Setup
 
-To use the components in your app, import them as follows:
+1. Install dependencies:
 
-```tsx
-import { Button } from "@/components/ui/button";
-```
+   ```bash
+   bun install
+   ```
+
+2. Copy the example environment file and fill in the values:
+
+   ```bash
+   cp .env.example .env.local
+   ```
+
+   Required environment variables:
+
+   | Variable               | Description                            |
+   | ---------------------- | -------------------------------------- |
+   | `AUTH_SECRET`          | Secret used by Auth.js to sign tokens  |
+   | `AUTH_KEYCLOAK_ID`     | Keycloak client ID                     |
+   | `AUTH_KEYCLOAK_SECRET` | Keycloak client secret                 |
+   | `AUTH_KEYCLOAK_ISSUER` | Keycloak issuer URL                    |
+   | `AUTH_URL`             | Base URL of this app (used by Auth.js) |
+
+3. Start the dev server:
+
+   ```bash
+   bun run dev
+   ```
+
+   The app will be available at [http://localhost:3000](http://localhost:3000).
+
+## Available commands
+
+| Command                   | Description                                 |
+| ------------------------- | ------------------------------------------- |
+| `bun run dev`             | Start the Next.js dev server                |
+| `bun run build`           | Build the app for production                |
+| `bun run start`           | Run the production build                    |
+| `bun run lint`            | Lint the codebase with ESLint               |
+| `bun run format`          | Format the codebase with Prettier           |
+| `bun run typecheck`       | Type-check the codebase with `tsc --noEmit` |
+| `bun run storybook`       | Start Storybook on port 6006                |
+| `bun run build-storybook` | Build a static Storybook site               |

@@ -52,7 +52,7 @@ export const MessageGroup = ({ user, messages }: MessageGroupPropsType) => {
           {messages.map((message) => (
             <div
               key={message.id}
-              className="text-sm break-words whitespace-pre-wrap"
+              className="text-sm wrap-break-word whitespace-pre-wrap"
             >
               {message.content}
             </div>
