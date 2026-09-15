@@ -1,22 +1,33 @@
 import { NextResponse } from "next/server"
-import { getAccessToken } from "@/lib/auth-token"
+import { backendFetch, BackendAuthError } from "@/lib/backend"
+import { meResponseSchema } from "@/lib/validations/me"
 
 export const GET = async () => {
-  const accessToken = await getAccessToken()
+  try {
+    const response = await backendFetch("/me")
 
-  if (!accessToken) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
+    if (!response.ok) {
+      return NextResponse.json(
+        { message: response.statusText },
+        { status: response.status }
+      )
+    }
+
+    const validatedResponse = meResponseSchema.safeParse(await response.json())
+
+    if (!validatedResponse.success) {
+      return NextResponse.json(
+        { message: "Unexpected response from backend" },
+        { status: 502 }
+      )
+    }
+
+    return NextResponse.json(validatedResponse.data)
+  } catch (error) {
+    if (error instanceof BackendAuthError) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
+    }
+
+    throw error
   }
-
-  const response = await fetch(`${process.env.BACKEND_URL}/api/me`, {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  })
-
-  const data = await response.json()
-
-  return NextResponse.json(data, {
-    status: response.status,
-  })
 }
