@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 import { expect, fn } from "storybook/test"
 
-import type { MessageGroupType } from "@/components/chat/types"
-import { Chat } from "@/components/chat/chat"
+import type { MessageGroupType } from "@/features/chat/types"
+import { Chat } from "@/features/chat/components/chat"
 
 const messageGroups: MessageGroupType[] = [
   {

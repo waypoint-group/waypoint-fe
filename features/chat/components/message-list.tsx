@@ -2,7 +2,7 @@
 
 import { ScrollArea } from "@/components/ui/scroll-area"
 
-import { MessageGroupType } from "./types"
+import { MessageGroupType } from "../types"
 import { MessageGroup } from "./message-group"
 
 type MessageListPropsType = {

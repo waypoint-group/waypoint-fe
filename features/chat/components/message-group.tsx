@@ -1,7 +1,7 @@
 "use client"
 
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
-import type { ChatUserType, ChatMessageType } from "./types"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import type { ChatUserType, ChatMessageType } from "../types"
 
 type MessageGroupPropsType = {
   user: ChatUserType

@@ -1,11 +1,12 @@
 import { redirect } from "next/navigation"
-import { backendFetch } from "@/lib/backend"
-import { OnboardingCard } from "@/components/onboarding-card"
+import { getBootstrap } from "@/features/bootstrap/data"
+import { OnboardingCard } from "@/features/onboarding/components/onboarding-card"
 
 const OnboardingPage = async () => {
-  const response = await backendFetch("/me")
+  const result = await getBootstrap()
 
-  if (response.ok) {
+  // Signed-out visitors have nothing to onboard, and existing users are already done.
+  if (result.status !== "onboardingRequired") {
     redirect("/")
   }
 
