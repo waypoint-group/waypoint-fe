@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 import { expect, fn } from "storybook/test"
 
-import { ChatComposer } from "@/components/chat/chat-composer"
+import { ChatComposer } from "@/features/chat/components/chat-composer"
 
 const meta = {
   component: ChatComposer,
