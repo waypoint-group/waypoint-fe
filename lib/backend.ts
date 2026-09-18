@@ -1,5 +1,8 @@
+import "server-only"
+
+import { cache } from "react"
+
 import { auth } from "@/auth"
-import type { Session } from "next-auth"
 
 // Thrown when there is no usable access token, so callers can distinguish it from transport errors.
 export class BackendAuthError extends Error {
@@ -9,12 +12,11 @@ export class BackendAuthError extends Error {
   }
 }
 
-export const backendFetch = async (
-  path: string,
-  init?: RequestInit,
-  session?: Session
-) => {
-  const currentSession = session ?? (await auth())
+// Memoized per request so multiple callers share one JWT decode instead of threading a session around.
+export const getSession = cache(() => auth())
+
+export const backendFetch = async (path: string, init?: RequestInit) => {
+  const currentSession = await getSession()
   const accessToken = currentSession?.accessToken
 
   if (currentSession?.error === "RefreshAccessTokenError") {
@@ -25,12 +27,12 @@ export const backendFetch = async (
     throw new BackendAuthError("Not authenticated")
   }
 
+  const headers = new Headers(init?.headers)
+  headers.set("Authorization", `Bearer ${accessToken}`)
+
   return fetch(`${process.env.BACKEND_URL}${path}`, {
     ...init,
-    headers: {
-      ...init?.headers,
-      Authorization: `Bearer ${accessToken}`,
-    },
+    headers,
     cache: "no-store",
   })
 }
