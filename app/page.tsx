@@ -1,6 +1,5 @@
 import { getBootstrap } from "@/features/bootstrap/data"
 import { SocialSignInButton } from "@/features/auth/components/social-sign-in-button"
-import { SignOutButton } from "@/features/auth/components/sign-out-button"
 import { AdIcon, TvIcon } from "lucide-react"
 import { redirect } from "next/navigation"
 
@@ -27,20 +26,15 @@ const SignedOutView = () => (
 const Page = async () => {
   const result = await getBootstrap()
 
-  if (result.status === "unauthenticated") {
-    return <SignedOutView />
-  }
-
   if (result.status === "onboardingRequired") {
     redirect("/onboarding")
   }
 
-  return (
-    <PageShell>
-      <p>Welcome, {result.data.user.displayName}!</p>
-      <SignOutButton />
-    </PageShell>
-  )
+  if (result.status === "ok") {
+    redirect("/dms")
+  }
+
+  return <SignedOutView />
 }
 
 export default Page
