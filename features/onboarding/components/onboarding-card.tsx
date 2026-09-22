@@ -1,9 +1,9 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 
+import { createUser } from "@/features/onboarding/actions"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -17,11 +17,10 @@ import { Label } from "@/components/ui/label"
 import {
   onboardingSchema,
   type OnboardingFormValuesType,
-} from "@/lib/validations/onboarding"
+} from "@/features/onboarding/schema"
 import { useState } from "react"
 
 export const OnboardingCard = () => {
-  const router = useRouter()
   const [isDisplayNameEdited, setIsDisplayNameEdited] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
 
@@ -36,23 +35,10 @@ export const OnboardingCard = () => {
   const onSubmit = async (values: OnboardingFormValuesType) => {
     setSubmitError(null)
 
-    const response = await fetch("/api/users", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(values),
-    })
+    // Only returns on failure; success redirects from the server.
+    const result = await createUser(values)
 
-    if (!response.ok) {
-      const data = await response.json().catch(() => null)
-
-      setSubmitError(data?.message ?? "Something went wrong. Please try again.")
-      return
-    }
-
-    router.push("/")
-    router.refresh()
+    setSubmitError(result.message)
   }
 
   return (

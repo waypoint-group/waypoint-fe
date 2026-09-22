@@ -3,7 +3,7 @@
 import { ChatComposer } from "./chat-composer"
 import { ChatHeader } from "./chat-header"
 import { MessageList } from "./message-list"
-import type { MessageGroupType } from "./types"
+import type { MessageGroupType } from "../types"
 
 type ChatPropsType = {
   channelName: string

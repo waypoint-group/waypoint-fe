@@ -1,7 +1,7 @@
 "use client"
 
 import { signIn } from "next-auth/react"
-import { Button } from "./ui/button"
+import { Button } from "@/components/ui/button"
 
 type SocialSignInPropsType = {
   provider: "google" | "github"

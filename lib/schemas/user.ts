@@ -1,6 +1,6 @@
 import { z } from "zod"
 
-export const meResponseSchema = z
+export const userSchema = z
   .object({
     id: z.uuid(),
     email: z.email(),
@@ -15,4 +15,4 @@ export const meResponseSchema = z
     createdAt: new Date(created_at),
   }))
 
-export type MeResponseType = z.infer<typeof meResponseSchema>
+export type UserType = z.infer<typeof userSchema>
