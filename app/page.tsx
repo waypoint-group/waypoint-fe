@@ -1,4 +1,4 @@
-import { getBootstrap } from "@/features/bootstrap/data"
+import { getBootstrap } from "@/lib/bootstrap/data"
 import { SocialSignInButton } from "@/features/auth/components/social-sign-in-button"
 import { AdIcon, TvIcon } from "lucide-react"
 import { redirect } from "next/navigation"

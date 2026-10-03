@@ -3,10 +3,7 @@ import "server-only"
 import { cache } from "react"
 
 import { BackendAuthError, backendFetch } from "@/lib/backend"
-import {
-  bootstrapSchema,
-  type BootstrapType,
-} from "@/features/bootstrap/schema"
+import { bootstrapSchema, type BootstrapType } from "@/lib/bootstrap/schema"
 
 export type BootstrapResultType =
   | { status: "unauthenticated" }

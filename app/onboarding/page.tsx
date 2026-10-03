@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation"
-import { getBootstrap } from "@/features/bootstrap/data"
+import { getBootstrap } from "@/lib/bootstrap/data"
 import { OnboardingCard } from "@/features/onboarding/components/onboarding-card"
 
 const OnboardingPage = async () => {
