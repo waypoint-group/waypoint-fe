@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation"
 
-import { getBootstrap } from "@/features/bootstrap/data"
+import { BootstrapProvider } from "@/lib/bootstrap/context"
+import { getBootstrap } from "@/lib/bootstrap/data"
 import { WorkspaceRail } from "@/features/workspaces/components/workspace-rail"
 
 const AppLayout = async ({ children }: { children: React.ReactNode }) => {
@@ -15,10 +16,12 @@ const AppLayout = async ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <div className="flex h-svh overflow-hidden">
-      <WorkspaceRail />
-      {children}
-    </div>
+    <BootstrapProvider value={result.data}>
+      <div className="flex h-svh overflow-hidden">
+        <WorkspaceRail />
+        {children}
+      </div>
+    </BootstrapProvider>
   )
 }
 
