@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation"
 
-import { BackendAuthError, backendFetch, getSession } from "@/lib/backend"
+import { BackendAuthError, backendFetch } from "@/lib/backend"
 import {
   createUserRequestSchema,
   type OnboardingFormValuesType,
@@ -16,18 +16,12 @@ export const createUser = async (values: OnboardingFormValuesType) => {
   }
 
   try {
-    const session = await getSession()
-
     const response = await backendFetch("/users", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        ...validatedFields.data,
-        // TODO: drop email once the backend reads it from the access token.
-        email: session?.user?.email,
-      }),
+      body: JSON.stringify(validatedFields.data),
     })
 
     if (!response.ok) {
