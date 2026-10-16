@@ -1,5 +1,7 @@
 import { z } from "zod"
 
+import { usernameSchema } from "@/lib/schemas/user"
+
 export const createWorkspaceSchema = z.object({
   name: z
     .string()
@@ -18,3 +20,16 @@ export const createWorkspaceSchema = z.object({
 export type CreateWorkspaceFormValuesType = z.infer<
   typeof createWorkspaceSchema
 >
+
+export const addWorkspaceMemberSchema = z.object({
+  username: usernameSchema,
+})
+
+export type AddWorkspaceMemberFormValuesType = z.infer<
+  typeof addWorkspaceMemberSchema
+>
+
+export const addWorkspaceMemberRequestSchema =
+  addWorkspaceMemberSchema.transform(({ username }) => ({
+    user_name: username,
+  }))
