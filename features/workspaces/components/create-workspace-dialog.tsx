@@ -18,6 +18,11 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { createWorkspace } from "@/features/workspaces/actions"
 import {
   createWorkspaceSchema,
@@ -62,12 +67,20 @@ export const CreateWorkspaceDialog = () => {
         }
       }}
     >
-      <DialogTrigger
-        aria-label="Create workspace"
-        className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-background text-muted-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
-      >
-        <PlusIcon className="size-5" />
-      </DialogTrigger>
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <DialogTrigger
+              aria-label="Create workspace"
+              className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-background text-muted-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
+            />
+          }
+        >
+          <PlusIcon className="size-5" />
+        </TooltipTrigger>
+
+        <TooltipContent side="right">Create workspace</TooltipContent>
+      </Tooltip>
 
       <DialogContent>
         <form
