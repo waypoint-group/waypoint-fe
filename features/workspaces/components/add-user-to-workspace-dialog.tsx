@@ -31,11 +31,26 @@ import {
 export const AddUserToWorkspaceDialog = ({
   workspaceId,
   workspaceName,
+  open: controlledOpen,
+  onOpenChange,
 }: {
   workspaceId: string
   workspaceName: string
+  // When controlled, the dialog renders no trigger of its own and is opened from elsewhere.
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }) => {
-  const [open, setOpen] = useState(false)
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false)
+  const isControlled = controlledOpen !== undefined
+  const open = isControlled ? controlledOpen : uncontrolledOpen
+
+  const setOpen = (isOpen: boolean) => {
+    if (isControlled) {
+      onOpenChange?.(isOpen)
+    } else {
+      setUncontrolledOpen(isOpen)
+    }
+  }
   const [submitError, setSubmitError] = useState<string | null>(null)
 
   const form = useForm<AddWorkspaceMemberFormValuesType>({
@@ -70,20 +85,22 @@ export const AddUserToWorkspaceDialog = ({
         }
       }}
     >
-      <Tooltip>
-        <TooltipTrigger
-          render={
-            <DialogTrigger
-              aria-label="Add user to workspace"
-              className="text-muted-foreground transition-colors hover:text-foreground"
-            />
-          }
-        >
-          <UserRoundPlusIcon className="size-5" />
-        </TooltipTrigger>
+      {!isControlled && (
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <DialogTrigger
+                aria-label="Add user to workspace"
+                className="text-muted-foreground transition-colors hover:text-foreground"
+              />
+            }
+          >
+            <UserRoundPlusIcon className="size-5" />
+          </TooltipTrigger>
 
-        <TooltipContent side="right">Add user to workspace</TooltipContent>
-      </Tooltip>
+          <TooltipContent side="right">Add user to workspace</TooltipContent>
+        </Tooltip>
+      )}
 
       <DialogContent>
         <form
