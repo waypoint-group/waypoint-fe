@@ -25,13 +25,14 @@ export const ThemeSection = () => {
       {themeOptions.map(({ value, label, icon: Icon }) => (
         <Label
           key={value}
-          className="flex cursor-pointer flex-col items-center gap-3 rounded-lg border p-4 has-data-checked:border-primary has-data-checked:bg-muted/40"
+          className="relative flex cursor-pointer flex-col items-center gap-3 rounded-lg border px-2 py-6 has-data-checked:border-primary has-data-checked:bg-muted/40"
         >
+          <RadioGroupItem
+            value={value}
+            className="absolute top-2.5 right-2.5"
+          />
           <Icon className="size-6 text-muted-foreground" />
-          <span className="flex items-center gap-2">
-            <RadioGroupItem value={value} />
-            {label}
-          </span>
+          {label}
         </Label>
       ))}
     </RadioGroup>
