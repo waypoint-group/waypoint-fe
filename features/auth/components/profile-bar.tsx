@@ -1,21 +1,9 @@
 "use client"
 
-import {
-  CircleUserIcon,
-  LogOutIcon,
-  SettingsIcon,
-  UserRound,
-} from "lucide-react"
+import { UserRound } from "lucide-react"
 
 import { Avatar, AvatarBadge, AvatarFallback } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { logout } from "@/features/auth/actions"
+import { UserSettingsDialog } from "@/features/settings/components/user-settings-dialog"
 import { useBootstrap } from "@/lib/bootstrap/context"
 
 export const ProfileBar = () => {
@@ -39,27 +27,7 @@ export const ProfileBar = () => {
         <span className="text-xs text-muted-foreground">Online</span>
       </div>
 
-      <DropdownMenu>
-        <DropdownMenuTrigger
-          render={
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              aria-label="User settings"
-              className="text-muted-foreground"
-            />
-          }
-        >
-          <SettingsIcon className="size-5" />
-        </DropdownMenuTrigger>
-
-        <DropdownMenuContent side="top" align="end" className="min-w-40">
-          <DropdownMenuItem onClick={() => logout()}>
-            <LogOutIcon />
-            Logout
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <UserSettingsDialog />
     </div>
   )
 }
