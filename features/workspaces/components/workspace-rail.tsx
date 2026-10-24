@@ -1,8 +1,14 @@
 "use client"
 
+import { RestrictToVerticalAxis } from "@dnd-kit/abstract/modifiers"
+import { KeyboardSensor } from "@dnd-kit/dom"
+import { RestrictToElement } from "@dnd-kit/dom/modifiers"
+import { move } from "@dnd-kit/helpers"
+import { DragDropProvider } from "@dnd-kit/react"
+import { useSortable } from "@dnd-kit/react/sortable"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useState } from "react"
+import { useRef, useState } from "react"
 
 import {
   ContextMenu,
@@ -20,28 +26,48 @@ import {
 import { AddUserToWorkspaceDialog } from "@/features/workspaces/components/add-user-to-workspace-dialog"
 import { CreateWorkspaceDialog } from "@/features/workspaces/components/create-workspace-dialog"
 import { DeleteWorkspaceDialog } from "@/features/workspaces/components/delete-workspace-dialog"
+import { useWorkspaceOrder } from "@/features/workspaces/hooks/use-workspace-order"
 import { useBootstrap } from "@/lib/bootstrap/context"
 import type { WorkspacePreviewType } from "@/lib/schemas/workspace"
 
 const railItemClassName =
-  "flex size-11 shrink-0 items-center justify-center rounded-2xl bg-background text-sm font-semibold transition-all hover:bg-primary hover:text-primary-foreground aria-[current=page]:rounded-xl aria-[current=page]:bg-primary aria-[current=page]:text-primary-foreground"
+  "flex size-11 shrink-0 items-center justify-center rounded-2xl bg-background text-sm font-semibold transition-all hover:bg-primary hover:text-primary-foreground aria-[current=page]:rounded-xl aria-[current=page]:bg-primary aria-[current=page]:text-primary-foreground data-dragging:rounded-xl data-dragging:shadow-lg"
+
+// Enter is left out of the start keys so it still follows the link; Space picks an item up instead.
+const sensors = [
+  KeyboardSensor.configure({
+    keyboardCodes: {
+      ...KeyboardSensor.defaults.keyboardCodes,
+      start: ["Space"],
+    },
+  }),
+]
 
 const WorkspaceRailItem = ({
   workspace,
+  index,
   isActive,
+  isSorting,
 }: {
   workspace: WorkspacePreviewType
+  index: number
   isActive: boolean
+  isSorting: boolean
 }) => {
   // Dialogs live outside the menu popup, which unmounts as soon as an item is clicked.
   const [isInviteOpen, setIsInviteOpen] = useState(false)
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
 
+  const { ref, isDragging } = useSortable({ id: workspace.id, index })
+
   return (
     <>
       <ContextMenu>
-        <Tooltip>
+        {/* Tooltips would trail every item the pointer passes over mid-drag. */}
+        <Tooltip disabled={isSorting}>
           <TooltipTrigger
+            ref={ref}
+            data-dragging={isDragging || undefined}
             render={
               <ContextMenuTrigger
                 render={
@@ -104,7 +130,11 @@ const WorkspaceRailItem = ({
 }
 
 export const WorkspaceRail = () => {
-  const { workspaceMemberships: workspaces } = useBootstrap()
+  const { workspaceMemberships } = useBootstrap()
+  const { orderedWorkspaces, saveOrder } =
+    useWorkspaceOrder(workspaceMemberships)
+  const [isSorting, setIsSorting] = useState(false)
+  const navRef = useRef<HTMLElement>(null)
   const pathname = usePathname()
   const isWorkspaceRoute = pathname.startsWith("/workspaces/")
 
@@ -115,7 +145,10 @@ export const WorkspaceRail = () => {
   }
 
   return (
-    <nav className="flex w-16 shrink-0 flex-col items-center gap-2 overflow-y-auto border-r bg-muted/40 py-3">
+    <nav
+      ref={navRef}
+      className="flex w-16 shrink-0 flex-col items-center gap-2 overflow-y-auto border-r bg-muted/40 py-3"
+    >
       <Link
         href="/dms"
         aria-current={isWorkspaceRoute ? undefined : "page"}
@@ -126,13 +159,39 @@ export const WorkspaceRail = () => {
 
       <Separator className="w-8!" />
 
-      {workspaces.map((workspace) => (
-        <WorkspaceRailItem
-          key={workspace.id}
-          workspace={workspace}
-          isActive={isWorkspaceActive(workspace.id)}
-        />
-      ))}
+      <DragDropProvider
+        sensors={(defaults) => [
+          ...defaults.filter((sensor) => sensor !== KeyboardSensor),
+          ...sensors,
+        ]}
+        modifiers={(defaults) => [
+          ...defaults,
+          RestrictToVerticalAxis,
+          RestrictToElement.configure({ element: () => navRef.current }),
+        ]}
+        onDragStart={() => setIsSorting(true)}
+        onDragEnd={(event) => {
+          setIsSorting(false)
+
+          if (event.canceled) {
+            return
+          }
+
+          saveOrder(
+            move(orderedWorkspaces, event).map((workspace) => workspace.id)
+          )
+        }}
+      >
+        {orderedWorkspaces.map((workspace, index) => (
+          <WorkspaceRailItem
+            key={workspace.id}
+            workspace={workspace}
+            index={index}
+            isActive={isWorkspaceActive(workspace.id)}
+            isSorting={isSorting}
+          />
+        ))}
+      </DragDropProvider>
 
       <CreateWorkspaceDialog />
     </nav>
