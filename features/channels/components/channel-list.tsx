@@ -4,8 +4,8 @@ import { AddUserToWorkspaceDialog } from "@/features/workspaces/components/add-u
 // Placeholder: will list the channels of the given workspace.
 export const ChannelList = ({ workspace }: { workspace: WorkspaceType }) => (
   <div className="flex h-full flex-col gap-2 p-4">
-    <div className="flex items-center justify-between">
-      <h2 className="text-base font-semibold tracking-wide text-foreground uppercase">
+    <div className="flex items-center justify-between gap-4">
+      <h2 className="truncate text-base font-semibold tracking-wide text-foreground uppercase">
         {workspace.name}
       </h2>
 
