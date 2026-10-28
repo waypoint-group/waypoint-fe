@@ -5,9 +5,7 @@ import { revalidatePath } from "next/cache"
 import { BackendAuthError, backendFetch } from "@/lib/backend"
 import { workspacePreviewSchema } from "@/lib/schemas/workspace"
 import {
-  addWorkspaceMemberRequestSchema,
   createWorkspaceSchema,
-  type AddWorkspaceMemberFormValuesType,
   type CreateWorkspaceFormValuesType,
 } from "@/features/workspaces/schema"
 
@@ -64,25 +62,13 @@ type AddWorkspaceMemberResultType =
 
 export const addWorkspaceMember = async (
   workspaceId: string,
-  values: AddWorkspaceMemberFormValuesType
+  userId: string
 ): Promise<AddWorkspaceMemberResultType> => {
-  const validatedFields = addWorkspaceMemberRequestSchema.safeParse(values)
-
-  if (!validatedFields.success) {
-    return { status: "error", message: "Invalid input" }
-  }
-
   try {
-    // Encode so the client-supplied id stays a single path segment.
+    // Encode so the client-supplied ids stay single path segments.
     const response = await backendFetch(
-      `/workspaces/${encodeURIComponent(workspaceId)}/members`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(validatedFields.data),
-      }
+      `/workspaces/${encodeURIComponent(workspaceId)}/users/${encodeURIComponent(userId)}`,
+      { method: "POST" }
     )
 
     if (!response.ok) {

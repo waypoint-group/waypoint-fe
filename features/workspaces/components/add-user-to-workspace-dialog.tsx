@@ -1,11 +1,8 @@
 "use client"
 
-import { zodResolver } from "@hookform/resolvers/zod"
 import { UserRoundPlusIcon } from "lucide-react"
 import { useState } from "react"
-import { useForm } from "react-hook-form"
 
-import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -15,21 +12,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { addWorkspaceMember } from "@/features/workspaces/actions"
-import {
-  addWorkspaceMemberSchema,
-  type AddWorkspaceMemberFormValuesType,
-} from "@/features/workspaces/schema"
 
 export const AddUserToWorkspaceDialog = ({
-  workspaceId,
   workspaceName,
   open: controlledOpen,
   onOpenChange,
@@ -51,40 +40,9 @@ export const AddUserToWorkspaceDialog = ({
       setUncontrolledOpen(isOpen)
     }
   }
-  const [submitError, setSubmitError] = useState<string | null>(null)
-
-  const form = useForm<AddWorkspaceMemberFormValuesType>({
-    resolver: zodResolver(addWorkspaceMemberSchema),
-    defaultValues: {
-      username: "",
-    },
-  })
-
-  const onSubmit = async (values: AddWorkspaceMemberFormValuesType) => {
-    setSubmitError(null)
-
-    const result = await addWorkspaceMember(workspaceId, values)
-
-    if (result.status === "error") {
-      setSubmitError(result.message)
-      return
-    }
-
-    setOpen(false)
-  }
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={setOpen}
-      // Reset after the close animation so the content doesn't flash empty while fading out.
-      onOpenChangeComplete={(isOpen) => {
-        if (!isOpen) {
-          form.reset()
-          setSubmitError(null)
-        }
-      }}
-    >
+    <Dialog open={open} onOpenChange={setOpen}>
       {!isControlled && (
         <Tooltip>
           <TooltipTrigger
@@ -102,49 +60,20 @@ export const AddUserToWorkspaceDialog = ({
         </Tooltip>
       )}
 
-      <DialogContent>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="flex flex-col gap-6"
-        >
-          <DialogHeader className="gap-1">
-            <DialogTitle className="text-lg">
-              Add a user to workspace
-            </DialogTitle>
-            <DialogDescription>
-              Enter the username of the person you want to add to{" "}
-              {workspaceName}.
-            </DialogDescription>
-          </DialogHeader>
+      <DialogContent className="flex flex-col gap-6">
+        <DialogHeader className="gap-1">
+          <DialogTitle className="text-lg">Add a user to workspace</DialogTitle>
+          <DialogDescription>
+            Invite friends to {workspaceName}.
+          </DialogDescription>
+        </DialogHeader>
 
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="member-username">Username</Label>
+        {/* TODO: Replace with the friend list once friends are implemented, adding the selected friend via addWorkspaceMember(workspaceId, userId). */}
+        <p className="text-sm text-muted-foreground">
+          Add friends first to be able to invite them to a workspace.
+        </p>
 
-            <Input
-              id="member-username"
-              placeholder="username"
-              autoComplete="off"
-              aria-invalid={!!form.formState.errors.username}
-              {...form.register("username")}
-            />
-
-            {form.formState.errors.username && (
-              <p className="text-sm text-destructive">
-                {form.formState.errors.username.message}
-              </p>
-            )}
-          </div>
-
-          {submitError && (
-            <p className="text-sm text-destructive">{submitError}</p>
-          )}
-
-          <DialogFooter>
-            <Button type="submit" disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? "Adding..." : "Add"}
-            </Button>
-          </DialogFooter>
-        </form>
+        <DialogFooter showCloseButton />
       </DialogContent>
     </Dialog>
   )
