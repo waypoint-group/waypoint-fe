@@ -2,8 +2,8 @@
 
 import { revalidatePath } from "next/cache"
 
-import { BackendAuthError, backendFetch } from "@/lib/backend"
-import { workspacePreviewSchema } from "@/lib/schemas/workspace"
+import { BackendAuthError } from "@/lib/backend"
+import { backendClient } from "@/lib/api/backend-client"
 import {
   createWorkspaceSchema,
   type CreateWorkspaceFormValuesType,
@@ -22,24 +22,24 @@ export const createWorkspace = async (
   }
 
   try {
-    const response = await backendFetch("/workspaces", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(validatedFields.data),
+    const api = await backendClient()
+    const {
+      data: workspace,
+      error,
+      response,
+    } = await api.POST("/workspaces", {
+      body: validatedFields.data,
     })
 
-    if (!response.ok) {
-      const data = await response.json().catch(() => null)
-
+    if (!response.ok || !workspace) {
       return {
         status: "error",
-        message: data?.message ?? "Something went wrong. Please try again.",
+        message:
+          response.status === 401
+            ? "Your session expired. Please sign in again."
+            : error?.trim() || "Something went wrong. Please try again.",
       }
     }
-
-    const workspace = workspacePreviewSchema.parse(await response.json())
 
     // The workspace rail is rendered from bootstrap data in the (app) layout.
     revalidatePath("/", "layout")
@@ -65,18 +65,27 @@ export const addWorkspaceMember = async (
   userId: string
 ): Promise<AddWorkspaceMemberResultType> => {
   try {
-    // Encode so the client-supplied ids stay single path segments.
-    const response = await backendFetch(
-      `/workspaces/${encodeURIComponent(workspaceId)}/users/${encodeURIComponent(userId)}`,
-      { method: "POST" }
-    )
+    const api = await backendClient()
+    const {
+      data: member,
+      error,
+      response,
+    } = await api.POST("/workspaces/{workspace_id}/users/{user_id}", {
+      params: {
+        path: {
+          workspace_id: workspaceId,
+          user_id: userId,
+        },
+      },
+    })
 
-    if (!response.ok) {
-      const data = await response.json().catch(() => null)
-
+    if (!response.ok || !member) {
       return {
         status: "error",
-        message: data?.message ?? "Something went wrong. Please try again.",
+        message:
+          response.status === 401
+            ? "Your session expired. Please sign in again."
+            : error?.trim() || "Something went wrong. Please try again.",
       }
     }
 
@@ -103,18 +112,22 @@ export const deleteWorkspace = async (
   workspaceId: string
 ): Promise<DeleteWorkspaceResultType> => {
   try {
-    // Encode so the client-supplied id stays a single path segment.
-    const response = await backendFetch(
-      `/workspaces/${encodeURIComponent(workspaceId)}`,
-      { method: "DELETE" }
-    )
+    const api = await backendClient()
+    const { error, response } = await api.DELETE("/workspaces/{workspace_id}", {
+      params: {
+        path: {
+          workspace_id: workspaceId,
+        },
+      },
+    })
 
     if (!response.ok) {
-      const data = await response.json().catch(() => null)
-
       return {
         status: "error",
-        message: data?.message ?? "Something went wrong. Please try again.",
+        message:
+          response.status === 401
+            ? "Your session expired. Please sign in again."
+            : error?.trim() || "Something went wrong. Please try again.",
       }
     }
 

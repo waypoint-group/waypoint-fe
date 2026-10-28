@@ -1,7 +1,8 @@
 "use server"
 
-import { BackendAuthError, backendFetch } from "@/lib/backend"
+import { BackendAuthError } from "@/lib/backend"
 import { logout } from "@/features/auth/actions"
+import { backendClient } from "@/lib/api/backend-client"
 
 type DeleteAccountResultType = { status: "error"; message: string }
 
@@ -10,18 +11,22 @@ export const deleteAccount = async (
   userId: string
 ): Promise<DeleteAccountResultType> => {
   try {
-    // Encode so the client-supplied id stays a single path segment.
-    const response = await backendFetch(
-      `/users/${encodeURIComponent(userId)}`,
-      { method: "DELETE" }
-    )
+    const api = await backendClient()
+    const { error, response } = await api.DELETE("/users/{id}", {
+      params: {
+        path: {
+          id: userId,
+        },
+      },
+    })
 
     if (!response.ok) {
-      const data = await response.json().catch(() => null)
-
       return {
         status: "error",
-        message: data?.message ?? "Something went wrong. Please try again.",
+        message:
+          response.status === 401
+            ? "Your session expired. Please sign in again."
+            : error?.trim() || "Something went wrong. Please try again.",
       }
     }
   } catch (error) {

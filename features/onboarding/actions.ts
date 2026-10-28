@@ -2,11 +2,12 @@
 
 import { redirect } from "next/navigation"
 
-import { BackendAuthError, backendFetch } from "@/lib/backend"
+import { BackendAuthError } from "@/lib/backend"
 import {
   createUserRequestSchema,
   type OnboardingFormValuesType,
 } from "@/features/onboarding/schema"
+import { backendClient } from "@/lib/api/backend-client"
 
 export const createUser = async (values: OnboardingFormValuesType) => {
   const validatedFields = createUserRequestSchema.safeParse(values)
@@ -16,19 +17,22 @@ export const createUser = async (values: OnboardingFormValuesType) => {
   }
 
   try {
-    const response = await backendFetch("/users", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(validatedFields.data),
+    const api = await backendClient()
+    const {
+      data: user,
+      error,
+      response,
+    } = await api.POST("/users", {
+      body: validatedFields.data,
     })
 
-    if (!response.ok) {
-      const data = await response.json().catch(() => null)
-
+    if (!response.ok || !user) {
       return {
-        message: data?.message ?? "Something went wrong. Please try again.",
+        status: "error",
+        message:
+          response.status === 401
+            ? "Your session expired. Please sign in again."
+            : error?.trim() || "Something went wrong. Please try again.",
       }
     }
   } catch (error) {
