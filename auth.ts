@@ -2,6 +2,8 @@ import NextAuth from "next-auth"
 import Keycloak from "next-auth/providers/keycloak"
 import { refreshAccessToken } from "./lib/auth/refresh-access-token"
 
+const ACCESS_TOKEN_EXPIRY_MARGIN_MS = 30 * 1000
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     Keycloak({
@@ -25,11 +27,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         return token
       }
 
-      // Access token is still valid
+      // Access token is still valid, with a margin so it can't expire on its way to the backend
       if (
         token.accessToken &&
         token.accessTokenExpiresAt &&
-        Date.now() < token.accessTokenExpiresAt
+        Date.now() < token.accessTokenExpiresAt - ACCESS_TOKEN_EXPIRY_MARGIN_MS
       ) {
         return token
       }
