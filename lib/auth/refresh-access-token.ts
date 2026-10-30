@@ -21,6 +21,15 @@ export const refreshAccessToken = async (token: JWT): Promise<JWT> => {
     const refreshedTokens = await response.json()
 
     if (!response.ok) {
+      // Dropping the dead refresh token stops further refresh attempts.
+      if (refreshedTokens.error === "invalid_grant") {
+        return {
+          ...token,
+          refreshToken: undefined,
+          error: "RefreshAccessTokenError",
+        }
+      }
+
       throw new Error(
         refreshedTokens.error_description ?? "Failed to refresh access token"
       )
