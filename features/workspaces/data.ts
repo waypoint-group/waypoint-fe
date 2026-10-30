@@ -2,8 +2,9 @@ import "server-only"
 
 import { cache } from "react"
 
-import { BackendAuthError, backendFetch } from "@/lib/backend"
-import { workspaceSchema, type WorkspaceType } from "@/lib/schemas/workspace"
+import { BackendAuthError } from "@/lib/backend"
+import { type WorkspaceType } from "@/lib/api/types"
+import { backendClient } from "@/lib/api/backend-client"
 
 export type WorkspaceResultType =
   | { status: "unauthenticated" }
@@ -12,13 +13,35 @@ export type WorkspaceResultType =
 
 export const getWorkspace = cache(
   async (workspaceId: string): Promise<WorkspaceResultType> => {
-    let response: Response
-
     try {
-      // Params arrive decoded, so encode to keep the id a single path segment.
-      response = await backendFetch(
-        `/workspaces/${encodeURIComponent(workspaceId)}`
+      const api = await backendClient()
+      const { data: workspace, response } = await api.GET(
+        "/workspaces/{workspace_id}",
+        {
+          params: {
+            path: {
+              workspace_id: workspaceId,
+            },
+          },
+        }
       )
+
+      if (response.status === 401) {
+        return { status: "unauthenticated" }
+      }
+
+      // 403 too, so non-members can't probe which workspace ids exist.
+      if (response.status === 403 || response.status === 404) {
+        return { status: "notFound" }
+      }
+
+      if (!response.ok || !workspace) {
+        throw new Error(
+          `Backend returned ${response.status} or an empty response`
+        )
+      }
+
+      return { status: "ok", data: workspace }
     } catch (error) {
       if (error instanceof BackendAuthError) {
         return { status: "unauthenticated" }
@@ -26,20 +49,5 @@ export const getWorkspace = cache(
 
       throw error
     }
-
-    if (response.status === 401) {
-      return { status: "unauthenticated" }
-    }
-
-    // 403 too, so non-members can't probe which workspace ids exist.
-    if (response.status === 403 || response.status === 404) {
-      return { status: "notFound" }
-    }
-
-    if (!response.ok) {
-      throw new Error(`Backend returned ${response.status}`)
-    }
-
-    return { status: "ok", data: workspaceSchema.parse(await response.json()) }
   }
 )

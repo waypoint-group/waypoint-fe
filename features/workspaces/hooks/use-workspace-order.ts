@@ -3,9 +3,9 @@
 import { useMemo } from "react"
 
 import { usePreference } from "@/lib/preferences/context"
-import type { WorkspacePreviewType } from "@/lib/schemas/workspace"
+import type { WorkspaceMembershipType } from "@/lib/api/types"
 
-export const useWorkspaceOrder = (workspaces: WorkspacePreviewType[]) => {
+export const useWorkspaceOrder = (workspaces: WorkspaceMembershipType[]) => {
   const [workspaceOrder, setWorkspaceOrder] = usePreference("workspaceOrder")
 
   const orderedWorkspaces = useMemo(() => {
@@ -15,7 +15,8 @@ export const useWorkspaceOrder = (workspaces: WorkspacePreviewType[]) => {
     // Workspaces missing from the saved order (e.g. just created or joined) keep their backend order at the end.
     return [...workspaces].sort(
       (a, b) =>
-        (rank.get(a.id) ?? order.length) - (rank.get(b.id) ?? order.length)
+        (rank.get(a.workspace_id) ?? order.length) -
+        (rank.get(b.workspace_id) ?? order.length)
     )
   }, [workspaceOrder, workspaces])
 

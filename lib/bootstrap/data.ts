@@ -2,8 +2,9 @@ import "server-only"
 
 import { cache } from "react"
 
-import { BackendAuthError, backendFetch } from "@/lib/backend"
-import { bootstrapSchema, type BootstrapType } from "@/lib/bootstrap/schema"
+import { BackendAuthError } from "@/lib/backend"
+import { type BootstrapType } from "@/lib/api/types"
+import { backendClient } from "../api/backend-client"
 
 export type BootstrapResultType =
   | { status: "unauthenticated" }
@@ -11,10 +12,25 @@ export type BootstrapResultType =
   | { status: "ok"; data: BootstrapType }
 
 export const getBootstrap = cache(async (): Promise<BootstrapResultType> => {
-  let response: Response
-
   try {
-    response = await backendFetch("/me")
+    const api = await backendClient()
+    const { data: me, response } = await api.GET("/me")
+
+    if (response.status === 401) {
+      return { status: "unauthenticated" }
+    }
+
+    if (response.status === 404) {
+      return { status: "onboardingRequired" }
+    }
+
+    if (!response.ok || !me) {
+      throw new Error(
+        `Backend returned ${response.status} or an empty response`
+      )
+    }
+
+    return { status: "ok", data: me }
   } catch (error) {
     if (error instanceof BackendAuthError) {
       return { status: "unauthenticated" }
@@ -22,18 +38,4 @@ export const getBootstrap = cache(async (): Promise<BootstrapResultType> => {
 
     throw error
   }
-
-  if (response.status === 401) {
-    return { status: "unauthenticated" }
-  }
-
-  if (response.status === 404) {
-    return { status: "onboardingRequired" }
-  }
-
-  if (!response.ok) {
-    throw new Error(`Backend returned ${response.status}`)
-  }
-
-  return { status: "ok", data: bootstrapSchema.parse(await response.json()) }
 })
