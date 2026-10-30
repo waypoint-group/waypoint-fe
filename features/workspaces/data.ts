@@ -3,7 +3,7 @@ import "server-only"
 import { cache } from "react"
 
 import { BackendAuthError } from "@/lib/backend"
-import { type WorkspaceType } from "@/lib/schemas/workspace"
+import { type WorkspaceType } from "@/lib/api/types"
 import { backendClient } from "@/lib/api/backend-client"
 
 export type WorkspaceResultType =
@@ -41,18 +41,7 @@ export const getWorkspace = cache(
         )
       }
 
-      return {
-        status: "ok",
-        data: {
-          id: workspace.id,
-          name: workspace.name,
-          createdAt: workspace.created_at,
-          members: workspace.members.map((member) => ({
-            userId: member.user_id,
-            role: member.role as string,
-          })),
-        },
-      }
+      return { status: "ok", data: workspace }
     } catch (error) {
       if (error instanceof BackendAuthError) {
         return { status: "unauthenticated" }

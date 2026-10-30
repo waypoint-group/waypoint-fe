@@ -22,7 +22,7 @@ export const ProfileBar = () => {
 
       <div className="flex min-w-0 flex-1 flex-col">
         <span className="truncate text-sm font-semibold">
-          {user.displayName}
+          {user.display_name}
         </span>
         <span className="text-xs text-muted-foreground">Online</span>
       </div>

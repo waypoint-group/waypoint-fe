@@ -1,4 +1,4 @@
-import type { WorkspaceType } from "@/lib/schemas/workspace"
+import type { WorkspaceType } from "@/lib/api/types"
 import { AddUserToWorkspaceDialog } from "@/features/workspaces/components/add-user-to-workspace-dialog"
 
 // Placeholder: will list the channels of the given workspace.

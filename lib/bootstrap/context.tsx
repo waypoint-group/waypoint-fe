@@ -2,7 +2,7 @@
 
 import { createContext, use } from "react"
 
-import type { BootstrapType } from "@/lib/bootstrap/schema"
+import type { BootstrapType } from "@/lib/api/types"
 
 const BootstrapContext = createContext<BootstrapType | null>(null)
 

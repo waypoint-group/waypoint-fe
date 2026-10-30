@@ -27,8 +27,8 @@ export const AccountSection = () => {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-5 rounded-lg bg-muted/40 p-4">
-        <AccountField label="Username" value={user.username} />
-        <AccountField label="Display Name" value={user.displayName} />
+        <AccountField label="Username" value={user.user_name} />
+        <AccountField label="Display Name" value={user.display_name} />
         <AccountField label="Email" value={user.email} />
         <AccountField label="Password" />
       </div>

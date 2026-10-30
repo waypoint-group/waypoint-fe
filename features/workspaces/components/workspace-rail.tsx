@@ -28,7 +28,7 @@ import { CreateWorkspaceDialog } from "@/features/workspaces/components/create-w
 import { DeleteWorkspaceDialog } from "@/features/workspaces/components/delete-workspace-dialog"
 import { useWorkspaceOrder } from "@/features/workspaces/hooks/use-workspace-order"
 import { useBootstrap } from "@/lib/bootstrap/context"
-import type { WorkspacePreviewType } from "@/lib/schemas/workspace"
+import type { WorkspaceMembershipType } from "@/lib/api/types"
 
 const railItemClassName =
   "flex size-11 shrink-0 items-center justify-center rounded-2xl bg-background text-sm font-semibold transition-all hover:bg-primary hover:text-primary-foreground aria-[current=page]:rounded-xl aria-[current=page]:bg-primary aria-[current=page]:text-primary-foreground data-dragging:rounded-xl data-dragging:shadow-lg"
@@ -49,7 +49,7 @@ const WorkspaceRailItem = ({
   isActive,
   isSorting,
 }: {
-  workspace: WorkspacePreviewType
+  workspace: WorkspaceMembershipType
   index: number
   isActive: boolean
   isSorting: boolean
@@ -58,7 +58,7 @@ const WorkspaceRailItem = ({
   const [isInviteOpen, setIsInviteOpen] = useState(false)
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
 
-  const { ref, isDragging } = useSortable({ id: workspace.id, index })
+  const { ref, isDragging } = useSortable({ id: workspace.workspace_id, index })
 
   return (
     <>
@@ -72,8 +72,8 @@ const WorkspaceRailItem = ({
               <ContextMenuTrigger
                 render={
                   <Link
-                    href={`/workspaces/${workspace.id}`}
-                    aria-label={workspace.name}
+                    href={`/workspaces/${workspace.workspace_id}`}
+                    aria-label={workspace.workspace_name}
                     aria-current={isActive ? "page" : undefined}
                     className={railItemClassName}
                   />
@@ -81,10 +81,12 @@ const WorkspaceRailItem = ({
               />
             }
           >
-            {workspace.name.charAt(0).toUpperCase()}
+            {workspace.workspace_name.charAt(0).toUpperCase()}
           </TooltipTrigger>
 
-          <TooltipContent side="right">{workspace.name}</TooltipContent>
+          <TooltipContent side="right">
+            {workspace.workspace_name}
+          </TooltipContent>
         </Tooltip>
 
         <ContextMenuContent className="min-w-48">
@@ -113,14 +115,14 @@ const WorkspaceRailItem = ({
       </ContextMenu>
 
       <AddUserToWorkspaceDialog
-        workspaceId={workspace.id}
-        workspaceName={workspace.name}
+        workspaceId={workspace.workspace_id}
+        workspaceName={workspace.workspace_name}
         open={isInviteOpen}
         onOpenChange={setIsInviteOpen}
       />
 
       <DeleteWorkspaceDialog
-        workspaceId={workspace.id}
+        workspaceId={workspace.workspace_id}
         isActive={isActive}
         open={isDeleteOpen}
         onOpenChange={setIsDeleteOpen}
@@ -130,9 +132,10 @@ const WorkspaceRailItem = ({
 }
 
 export const WorkspaceRail = () => {
-  const { workspaceMemberships } = useBootstrap()
-  const { orderedWorkspaces, saveOrder } =
-    useWorkspaceOrder(workspaceMemberships)
+  const { workspace_memberships } = useBootstrap()
+  const { orderedWorkspaces, saveOrder } = useWorkspaceOrder(
+    workspace_memberships
+  )
   const [isSorting, setIsSorting] = useState(false)
   const navRef = useRef<HTMLElement>(null)
   const pathname = usePathname()
@@ -178,16 +181,19 @@ export const WorkspaceRail = () => {
           }
 
           saveOrder(
-            move(orderedWorkspaces, event).map((workspace) => workspace.id)
+            move(
+              orderedWorkspaces.map((workspace) => workspace.workspace_id),
+              event
+            )
           )
         }}
       >
         {orderedWorkspaces.map((workspace, index) => (
           <WorkspaceRailItem
-            key={workspace.id}
+            key={workspace.workspace_id}
             workspace={workspace}
             index={index}
-            isActive={isWorkspaceActive(workspace.id)}
+            isActive={isWorkspaceActive(workspace.workspace_id)}
             isSorting={isSorting}
           />
         ))}

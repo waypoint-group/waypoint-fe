@@ -3,7 +3,7 @@ import "server-only"
 import { cache } from "react"
 
 import { BackendAuthError } from "@/lib/backend"
-import { type BootstrapType } from "@/lib/bootstrap/schema"
+import { type BootstrapType } from "@/lib/api/types"
 import { backendClient } from "../api/backend-client"
 
 export type BootstrapResultType =
@@ -30,22 +30,7 @@ export const getBootstrap = cache(async (): Promise<BootstrapResultType> => {
       )
     }
 
-    return {
-      status: "ok",
-      data: {
-        user: {
-          id: me.user.id,
-          email: me.user.email,
-          username: me.user.user_name,
-          displayName: me.user.display_name,
-          createdAt: new Date(me.user.created_at),
-        },
-        workspaceMemberships: me.workspace_memberships.map((membership) => ({
-          id: membership.workspace_id,
-          name: membership.workspace_name,
-        })),
-      },
-    }
+    return { status: "ok", data: me }
   } catch (error) {
     if (error instanceof BackendAuthError) {
       return { status: "unauthenticated" }
